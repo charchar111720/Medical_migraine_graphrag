@@ -1,0 +1,124 @@
+-目标-
+给定一个医疗指南文档和实体类型列表，从文本中识别出所有指定类型的医疗实体及其之间的关系。
+
+-步骤-
+1. 识别所有实体。对于每个识别出的实体，提取以下信息：
+- entity_name: 实体的名称，首字母大写
+- entity_type: 以下类型之一：[{entity_types}]
+- entity_description: 实体属性及其活动的详细描述
+将每个实体格式化为 ("entity"{tuple_delimiter}<entity_name>{tuple_delimiter}<entity_type>{tuple_delimiter}<entity_description>)
+
+2. 从步骤1中识别出的实体中，识别出所有*明确相关*的（source_entity, target_entity）实体对。
+对于每对相关实体，提取以下信息：
+- source_entity: 源实体的名称，如步骤1中识别
+- target_entity: 目标实体的名称，如步骤1中识别
+- relationship_description: 解释为什么你认为源实体和目标实体是相关的
+- relationship_strength: 一个数值分数（1-10），表示源实体和目标实体之间关系的强度
+将每个关系格式化为 ("relationship"{tuple_delimiter}<source_entity>{tuple_delimiter}<target_entity>{tuple_delimiter}<relationship_description>{tuple_delimiter}<relationship_strength>)
+
+3. 返回所有在步骤1和步骤2中识别出的实体和关系的输出，使用**{record_delimiter}**作为列表分隔符。
+
+4. 完成后，输出{completion_delimiter}
+
+######################
+-示例-
+######################
+示例1:
+Entity_types: DISEASE,DRUG,DRUG_CLASS,EVIDENCE_LEVEL
+Text:
+利扎曲普坦（曲普坦类）推荐用于偏头痛急性期治疗。该推荐的证据等级为A级。
+######################
+输出:
+("entity"{tuple_delimiter}偏头痛{tuple_delimiter}DISEASE{tuple_delimiter}神经血管性疾病，表现为反复发作的搏动性头痛)
+{record_delimiter}
+("entity"{tuple_delimiter}利扎曲普坦{tuple_delimiter}DRUG{tuple_delimiter}曲普坦类药物，用于偏头痛急性期治疗)
+{record_delimiter}
+("entity"{tuple_delimiter}曲普坦类{tuple_delimiter}DRUG_CLASS{tuple_delimiter}5-HT1受体激动剂类药物)
+{record_delimiter}
+("entity"{tuple_delimiter}证据等级A{tuple_delimiter}EVIDENCE_LEVEL{tuple_delimiter}高质量证据，未来研究几乎不可能改变疗效评价结果)
+{record_delimiter}
+("relationship"{tuple_delimiter}利扎曲普坦{tuple_delimiter}曲普坦类{tuple_delimiter}利扎曲普坦属于曲普坦类药物{tuple_delimiter}9)
+{record_delimiter}
+("relationship"{tuple_delimiter}利扎曲普坦{tuple_delimiter}偏头痛{tuple_delimiter}利扎曲普坦用于治疗偏头痛{tuple_delimiter}8)
+{completion_delimiter}
+
+######################
+示例2:
+Entity_types: DISEASE,DRUG,TREATMENT_PHASE
+Text:
+对于慢性偏头痛患者，托吡酯可作为预防性治疗的选择。托吡酯也适用于发作性偏头痛的预防。
+######################
+输出:
+("entity"{tuple_delimiter}慢性偏头痛{tuple_delimiter}DISEASE{tuple_delimiter}偏头痛的一种亚型，每月头痛天数≥15天)
+{record_delimiter}
+("entity"{tuple_delimiter}发作性偏头痛{tuple_delimiter}DISEASE{tuple_delimiter}偏头痛的一种亚型，每月头痛天数<15天)
+{record_delimiter}
+("entity"{tuple_delimiter}托吡酯{tuple_delimiter}DRUG{tuple_delimiter}抗癫痫药物，也用于偏头痛预防)
+{record_delimiter}
+("entity"{tuple_delimiter}预防性治疗{tuple_delimiter}TREATMENT_PHASE{tuple_delimiter}预防偏头痛发作的治疗阶段)
+{record_delimiter}
+("relationship"{tuple_delimiter}托吡酯{tuple_delimiter}慢性偏头痛{tuple_delimiter}托吡酯用于预防慢性偏头痛{tuple_delimiter}8)
+{record_delimiter}
+("relationship"{tuple_delimiter}托吡酯{tuple_delimiter}发作性偏头痛{tuple_delimiter}托吡酯用于预防发作性偏头痛{tuple_delimiter}8)
+{completion_delimiter}
+
+######################
+-医疗指南特定说明-
+######################
+
+实体类型（必须严格使用这些类型，不得新增）：
+1. DISEASE - 疾病名称（如：偏头痛、癫痫、慢性偏头痛）
+2. DRUG - 药物名称（如：利扎曲普坦、布洛芬、丙戊酸钠）
+3. DRUG_CLASS - 药物分类（如：曲普坦类、NSAIDs、β受体阻滞剂）
+4. NON_DRUG_TREATMENT - 非药物治疗（如：经颅磁刺激、物理治疗）
+5. TREATMENT_PHASE - 治疗阶段（如：急性期治疗、预防性治疗）
+6. POPULATION - 适用人群（如：成人、儿童、妊娠期女性）
+7. GUIDELINE - 指南名称（如：中国偏头痛诊治指南）
+8. GUIDELINE_EDITION - 指南版本（如：2022版、2024版）
+9. GUIDELINE_RECOMMENDATION - 推荐记录（表格行中的推荐条目）
+10. EVIDENCE_LEVEL - 证据等级（如：A级、B级、Ⅰ级、Ⅱ级）
+11. RECOMMENDATION_GRADE - 推荐强度（如：1级、2级、强推荐）
+12. COMORBIDITY_SCENARIO - 共病场景（如：癫痫合并偏头痛）
+
+关系类型（重点识别）：
+- IS_A: 药物或治疗IS_A某种治疗类型
+- BELONGS_TO: 药物BELONGS_TO药物分类
+- TREATS: 治疗方法TREATS疾病（急性期）
+- PREVENTS: 治疗方法PREVENTS疾病（预防期）
+- HAS_EDITION: 指南HAS_EDITION特定版本
+- ISSUES: 指南版本ISSUES推荐记录
+- FOR_THERAPY: 推荐记录FOR_THERAPY某治疗方法
+- FOR_DISEASE: 推荐记录FOR_DISEASE某疾病
+- FOR_PHASE: 推荐记录FOR_PHASE某治疗阶段
+- HAS_EVIDENCE: 推荐记录HAS_EVIDENCE证据等级
+- HAS_STRENGTH: 推荐记录HAS_STRENGTH推荐强度
+- COMORBID_WITH: 疾病COMORBID_WITH另一疾病
+- INVOLVES: 共病场景INVOLVES某疾病
+- DUAL_INDICATION_FOR: 药物DUAL_INDICATION_FOR共病场景
+
+重要规则：
+1. **只提取实体名称，不提取详细属性**（如剂量、禁忌症、不良反应由ES负责）
+2. **禁止提取通用类型**：不要提取PERSON（人名）、ORGANIZATION（机构）、LOCATION（地点）
+3. **注意表格信息**：表格中通常包含药物名称、证据等级、推荐强度
+4. **识别治疗阶段**：从二级标题（##）识别治疗阶段
+5. **实体名称要准确**：证据等级用"证据等级A"而不是"A级"，推荐强度用"推荐强度1级"
+6. **关系强度**：治疗关系为8-9，分类关系为9-10，其他为5-7
+7. **最低输出要求**：每个文本块的输出不能为空。若无法识别任何实体，请输出一个占位实体，例如：(文本主题, DISEASE, 该文本块讨论的主要医疗主题)。
+
+提取策略：
+- 一级标题（#）→ 提取GUIDELINE和GUIDELINE_EDITION
+- 二级标题（##）→ 提取TREATMENT_PHASE
+- 表格中的药物列 → 提取DRUG
+- 表格中的证据等级列 → 提取EVIDENCE_LEVEL
+- 表格中的推荐强度列 → 提取RECOMMENDATION_GRADE
+- "合并"、"共病"关键词 → 提取COMORBIDITY_SCENARIO
+- 对于不包含标题或表格的段落，主动识别其中提及的疾病名称、药物名称、人群等。如果某段落提及某种疾病，即使没有明确治疗关系，也应提取该疾病实体。
+- 确保至少一个实体：每个文本块必须至少输出一个实体。如果当前块没有任何符合类型的实体，则提取该块讨论的核心主题（如主要疾病）作为DISEASE实体，描述为“文本中讨论的核心疾病”。
+
+######################
+-真实数据-
+######################
+Entity_types: {entity_types}
+Text: {input_text}
+######################
+输出:

@@ -1,0 +1,147 @@
+-目标-
+给定一个医疗指南文档和实体类型列表，从文本中识别出所有指定类型的医疗实体及其之间的关系。
+
+-步骤-
+1. 识别所有实体。对于每个识别出的实体，提取以下信息：
+- entity_name: 实体的名称（标准化格式，见下文规则）
+- entity_type: 以下类型之一：[{entity_types}]
+- entity_description: 简洁描述（一句话，不超过50字，仅基于原文）
+将每个实体格式化为 ("entity"{tuple_delimiter}<entity_name>{tuple_delimiter}<entity_type>{tuple_delimiter}<entity_description>)
+
+2. 从步骤1中识别出的实体中，识别出所有*明确相关*的（source_entity, target_entity）实体对。
+对于每对相关实体，提取以下信息：
+- source_entity: 源实体的名称，如步骤1中识别
+- target_entity: 目标实体的名称，如步骤1中识别
+- relationship_description: 简洁说明关系（不超过20字）
+- relationship_strength: 一个数值分数（1-10）
+将每个关系格式化为 ("relationship"{tuple_delimiter}<source_entity>{tuple_delimiter}<target_entity>{tuple_delimiter}<relationship_description>{tuple_delimiter}<relationship_strength>)
+
+3. 返回所有在步骤1和步骤2中识别出的实体和关系的输出，使用**{record_delimiter}**作为列表分隔符。
+
+4. 完成后，输出{completion_delimiter}
+
+######################
+-示例-
+######################
+示例1:
+Entity_types: DISEASE,DRUG,DRUG_CLASS,EVIDENCE_LEVEL
+Text:
+利扎曲普坦（曲普坦类）推荐用于偏头痛急性期治疗。该推荐的证据等级为A级。
+######################
+输出:
+("entity"{tuple_delimiter}偏头痛{tuple_delimiter}DISEASE{tuple_delimiter}神经血管性疾病，反复发作的搏动性头痛)
+{record_delimiter}
+("entity"{tuple_delimiter}利扎曲普坦{tuple_delimiter}DRUG{tuple_delimiter}曲普坦类药物)
+{record_delimiter}
+("entity"{tuple_delimiter}曲普坦类{tuple_delimiter}DRUG_CLASS{tuple_delimiter}5-HT1受体激动剂类药物)
+{record_delimiter}
+("entity"{tuple_delimiter}A级{tuple_delimiter}EVIDENCE_LEVEL{tuple_delimiter}高质量证据)
+{record_delimiter}
+("relationship"{tuple_delimiter}利扎曲普坦{tuple_delimiter}曲普坦类{tuple_delimiter}属于{tuple_delimiter}9)
+{record_delimiter}
+("relationship"{tuple_delimiter}利扎曲普坦{tuple_delimiter}偏头痛{tuple_delimiter}用于治疗{tuple_delimiter}8)
+{completion_delimiter}
+
+######################
+示例2:
+Entity_types: DISEASE,DRUG,TREATMENT_PHASE,EVIDENCE_LEVEL,RECOMMENDATION_GRADE
+Text:
+对于慢性偏头痛患者，托吡酯可作为预防性治疗的选择（证据质量：高，推荐强度：强）。
+######################
+输出:
+("entity"{tuple_delimiter}慢性偏头痛{tuple_delimiter}DISEASE{tuple_delimiter}每月头痛天数≥15天的偏头痛)
+{record_delimiter}
+("entity"{tuple_delimiter}托吡酯{tuple_delimiter}DRUG{tuple_delimiter}抗癫痫药物)
+{record_delimiter}
+("entity"{tuple_delimiter}预防性治疗{tuple_delimiter}TREATMENT_PHASE{tuple_delimiter}预防偏头痛发作的治疗阶段)
+{record_delimiter}
+("entity"{tuple_delimiter}高{tuple_delimiter}EVIDENCE_LEVEL{tuple_delimiter}高质量证据)
+{record_delimiter}
+("entity"{tuple_delimiter}强{tuple_delimiter}RECOMMENDATION_GRADE{tuple_delimiter}强推荐)
+{record_delimiter}
+("relationship"{tuple_delimiter}托吡酯{tuple_delimiter}慢性偏头痛{tuple_delimiter}用于预防{tuple_delimiter}8)
+{completion_delimiter}
+
+######################
+-医疗指南特定说明-
+######################
+
+实体类型（必须严格使用，不得新增）：
+1. DISEASE - 疾病名称（如：偏头痛、癫痫、慢性偏头痛）
+2. DRUG - 药物名称（如：利扎曲普坦、布洛芬、丙戊酸钠）
+3. DRUG_CLASS - 药物分类（如：曲普坦类、NSAIDs、β受体阻滞剂）
+4. NON_DRUG_TREATMENT - 非药物治疗（如：经颅磁刺激、物理治疗）
+5. TREATMENT_PHASE - 治疗阶段（如：急性期治疗、预防性治疗）
+6. POPULATION - 适用人群（如：成人、儿童、妊娠期女性）
+7. GUIDELINE - 指南名称（如：中国偏头痛诊治指南）
+8. GUIDELINE_EDITION - 指南版本（如：2022版、2024版）
+9. GUIDELINE_RECOMMENDATION - 推荐记录（推荐条目）
+10. EVIDENCE_LEVEL - 证据等级（标准形式）
+11. RECOMMENDATION_GRADE - 推荐强度（标准形式）
+12. COMORBIDITY_SCENARIO - 共病场景（如：癫痫合并偏头痛）
+
+关系类型（重点识别）：
+- BELONGS_TO: 药物属于药物分类
+- TREATS: 治疗方法治疗疾病（急性期）
+- PREVENTS: 治疗方法预防疾病（预防期）
+- HAS_EDITION: 指南有特定版本
+- HAS_EVIDENCE: 推荐有证据等级
+- HAS_STRENGTH: 推荐有推荐强度
+- COMORBID_WITH: 疾病与疾病共病
+- INVOLVES: 共病场景包含疾病
+
+######################
+-严格提取规则-
+######################
+
+**1. 实体名称标准化（重要！）**
+
+证据等级（EVIDENCE_LEVEL）和推荐强度（RECOMMENDATION_GRADE）严格按照原文描述
+
+示例：
+  原文："证据质量高" → 提取为 "证据质量高高"（EVIDENCE_LEVEL）
+  原文："推荐强度：强" → 提取为 "推荐强强"（RECOMMENDATION_GRADE）
+  原文："证据等级为A级" → 提取为 "证据等级为A级"（EVIDENCE_LEVEL）
+
+**2. 描述长度控制**
+- 实体描述：一句话，不超过50字，仅基于原文内容
+- 关系描述：简洁表述，不超过20字（如"用于治疗"、"属于"、"是亚型"）
+- 禁止引入原文未提及的额外信息或模型知识
+
+**3. 严格禁止提取的内容**
+❌ 绝对不要提取：
+  - 机构名称（如：中国医师协会、神经内科医师分会、研究型医院学会）
+  - 人名
+  - 地点/地名
+  - 症状（如：恶心、呕吐、头晕、畏光）
+  - 检查方法（如：临床视野检查、头颅MRI）
+  - 安全建议（如：驾驶限制、避免日常活动）
+  - 方法学文件（如：GRADE、AGREE II）
+  - 注册平台（如：国际实践指南注册平台）
+  - 研究类型（如：随机双盲试验、对照研究）
+
+**4. 疾病（DISEASE）**
+  ✅ 提取：标准疾病名称（偏头痛、慢性偏头痛、发作性偏头痛、癫痫）
+  ❌ 不提取：症状（恶心、呕吐）、非标准术语（偏头痛相关失能）
+
+**5. 非药物治疗（NON_DRUG_TREATMENT）**
+  ✅ 提取：主动干预方法（经颅磁刺激、迷走神经刺激、物理治疗、针灸、认知行为疗法、生物反馈）
+  ❌ 不提取：症状、检查方法、安全建议
+
+**6. 指南相关（GUIDELINE, GUIDELINE_EDITION）**
+  ✅ 提取：指南本身（中国偏头痛诊治指南）、版本（2022版）
+  ❌ 不提取：参与机构、注册平台、方法学文件
+
+**7. 关系强度参考**
+  - 药物分类关系（BELONGS_TO）：9-10
+  - 治疗关系（TREATS/PREVENTS）：8-9
+  - 证据关系（HAS_EVIDENCE/HAS_STRENGTH）：9
+  - 其他：5-7
+
+######################
+-真实数据-
+######################
+Entity_types: {entity_types}
+Text: {input_text}
+######################
+输出:

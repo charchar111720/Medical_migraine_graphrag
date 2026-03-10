@@ -1,0 +1,184 @@
+{
+  "summary": {
+    "total_score": 67.58,
+    "scores_breakdown": {
+      "entity_quality": 18.52,
+      "relationship_quality": 19.06,
+      "coverage": 15,
+      "structure_quality": 15.0,
+      "total": 67.58
+    },
+    "grade": "D - 及格"
+  },
+  "entities": {
+    "total_entities": 1120,
+    "entity_types": 28,
+    "type_distribution": {
+      "NON_DRUG_TREATMENT": 155,
+      "COMORBIDITY_SCENARIO": 126,
+      "DISEASE": 122,
+      "DRUG": 122,
+      "DRUG_CLASS": 120,
+      "": 111,
+      "GUIDELINE_RECOMMENDATION": 74,
+      "POPULATION": 58,
+      "GUIDELINE": 50,
+      "TREATMENT_PHASE": 49,
+      "EVIDENCE_LEVEL": 30,
+      "THERAPY": 30,
+      "RECOMMENDATION_GRADE": 29,
+      "GUIDELINE_EDITION": 27,
+      "偏头痛": 3,
+      "COMORBIDITY_SCENARIO?": 2,
+      "中国偏头痛诊治指南": 1,
+      "Β-受体阻断剂": 1,
+      "DRUG<(\"ENTITY\"": 1,
+      "妊娠期和哺乳期的急性期偏头痛治疗": 1,
+      "急性期治疗": 1,
+      "预防性治疗": 1,
+      "成人": 1,
+      "6岁以上儿童": 1,
+      "孕期女性": 1,
+      "哺乳期女性": 1,
+      "三叉神经电刺激<NON_DRUG_TREATMENT>**注意：** 上述实体 `三叉神经电刺激` 的类型标记不完整。应更正如下：(\"ENTITY\"": 1,
+      "营养素补充": 1
+    },
+    "forbidden_entities": 0,
+    "forbidden_ratio": 0.0,
+    "evidence_level_count": 30,
+    "evidence_standard_ratio": 0.16666666666666666,
+    "non_standard_evidence": [
+      "2A",
+      "专家共识",
+      "证据等级为A级",
+      "低(C)",
+      "级证据",
+      "2B",
+      "D级证据:基于无同期对照的系列病例分析或专家意见",
+      "中(B)",
+      "C级证据:基于未随机分组但设计良好的对照试验或设计良好的队列研究或病例对照研究",
+      "极低(D)",
+      "B级证据",
+      "B级证据:基于至少1个较高质量的随机对照试验",
+      "C级证据",
+      "1B",
+      "D",
+      "现有研究证据等级较低",
+      "B",
+      "1A",
+      "4级",
+      "证据质量不高",
+      "A",
+      "证据级别(分4级,A级最高,D级最低)",
+      "A级证据:多项同质的随机对照试验的系统评价或多个随机对照试验或单项样本量足够的高质量随机对照试验",
+      "2C",
+      "A级证据"
+    ],
+    "recommendation_count": 29,
+    "recommendation_standard_ratio": 0.13793103448275862,
+    "non_standard_recommendation": [
+      "I",
+      "相关推荐强度相应受限",
+      "A级推荐",
+      "II级推荐:基于1项A级或2项B级证据",
+      "IV级推荐:证据矛盾或者不充分",
+      "推荐强度：强",
+      "弱(2)",
+      "ΩI级推荐",
+      "I级推荐",
+      "Ⅰ级推荐",
+      "Ⅱ级推荐",
+      "强(1)",
+      "B级推荐等级",
+      "推荐强度(分4级,I级最强,IV级最弱)",
+      "推荐强度分级",
+      "2级推荐意见",
+      "III级推荐",
+      "级推荐",
+      "III级推荐:基于至少1项B级证据或2项C级证据",
+      "Ⅲ级推荐",
+      "II",
+      "I级推荐:基于至少2项A级证据",
+      "2D",
+      "II级推荐",
+      "A级推荐等级"
+    ],
+    "avg_description_length": 29.367857142857144,
+    "max_description_length": 507,
+    "over_length_count": 185,
+    "over_length_ratio": 0.16517857142857142,
+    "avg_degree": 2.4857142857142858,
+    "max_degree": 296,
+    "top_entities": [
+      {
+        "title": "偏头痛",
+        "type": "DISEASE",
+        "degree": 296
+      },
+      {
+        "title": "VM",
+        "type": "DISEASE",
+        "degree": 82
+      },
+      {
+        "title": "前庭性偏头痛",
+        "type": "DISEASE",
+        "degree": 45
+      },
+      {
+        "title": "本指南",
+        "type": "",
+        "degree": 41
+      },
+      {
+        "title": "预防性治疗",
+        "type": "TREATMENT_PHASE",
+        "degree": 32
+      }
+    ]
+  },
+  "relationships": {
+    "total_relationships": 1431,
+    "relationships_per_entity": 1.2776785714285714,
+    "avg_weight": 10.20754716981132,
+    "min_weight": 1.0,
+    "max_weight": 157.0,
+    "weight_std": 9.167797033145709,
+    "weight_distribution": {
+      "weak (1-3)": 171,
+      "medium (4-7)": 235,
+      "strong (8-10)": 1025
+    },
+    "inferred_relation_types": {
+      "OTHER": 605,
+      "TREATS": 327,
+      "BELONGS_TO": 248,
+      "HAS_EVIDENCE": 93,
+      "HAS_STRENGTH": 88,
+      "PREVENTS": 70
+    },
+    "isolated_entities_count": 227,
+    "isolated_ratio": 0.20267857142857143
+  },
+  "communities": {
+    "total_communities": 182,
+    "level_distribution": {
+      "1": 100,
+      "2": 51,
+      "0": 26,
+      "3": 5
+    },
+    "avg_community_size": 11.89010989010989,
+    "max_community_size": 190,
+    "min_community_size": 2,
+    "max_hierarchy_level": 3,
+    "hierarchy_depth": 4
+  },
+  "text_units": {
+    "total_chunks": 248,
+    "avg_chunk_size": 772.2943548387096,
+    "max_chunk_size": 3423,
+    "min_chunk_size": 4,
+    "chunk_size_std": 836.3432491587095
+  }
+}

@@ -1,0 +1,109 @@
+-目标-
+从医疗指南文本中提取可验证的临床证据和推荐声明。
+
+-步骤-
+1. 识别所有声明。对于每个识别出的声明，提取以下信息：
+- subject_entity: 声明主体（通常是指南名称）
+- object_entity: 声明对象（药物、疾病、治疗方法）
+- claim_type: 声明类型（EFFICACY/SAFETY/RECOMMENDATION/EVIDENCE/DOSAGE/CONTRAINDICATION）
+- claim_description: 声明的详细描述
+- claim_date: 声明的时间（指南发布年份）
+- claim_source_text: 声明的原文引用
+
+将每个声明格式化为 ("claim"{tuple_delimiter}<subject_entity>{tuple_delimiter}<object_entity>{tuple_delimiter}<claim_type>{tuple_delimiter}<claim_description>{tuple_delimiter}<claim_date>{tuple_delimiter}<claim_source_text>)
+
+2. 使用**{record_delimiter}**分隔多个声明
+
+3. 完成后输出{completion_delimiter}
+
+######################
+-声明类型说明-
+######################
+
+1. EFFICACY（疗效声明）
+   - 描述：关于治疗有效性的声明
+   - 示例："利扎曲普坦用于偏头痛急性期治疗的有效率为70-80%"
+
+2. SAFETY（安全性声明）
+   - 描述：关于药物安全性、不良反应的声明
+   - 示例："利扎曲普坦的主要不良反应包括疲劳、虚弱、感觉迟钝"
+
+3. RECOMMENDATION（推荐声明）
+   - 描述：关于治疗推荐的声明
+   - 示例："强烈推荐利扎曲普坦用于偏头痛急性期治疗"
+
+4. EVIDENCE（证据声明）
+   - 描述：关于证据质量的声明
+   - 示例："该推荐的证据等级为A级"
+
+5. DOSAGE（剂量声明）
+   - 描述：关于用药剂量的声明
+   - 示例："利扎曲普坦的推荐剂量为5-10mg，口服"
+
+6. CONTRAINDICATION（禁忌声明）
+   - 描述：关于禁忌症的声明
+   - 示例："冠心病患者禁用利扎曲普坦"
+
+######################
+-示例-
+######################
+示例1:
+Entity_types: GUIDELINE,DRUG,DISEASE
+Text: 
+根据《中国偏头痛诊治指南2022版》，利扎曲普坦用于偏头痛急性期治疗的有效率为70-80%。该推荐的证据等级为A级，推荐强度为1级。冠心病患者禁用。
+######################
+输出:
+("claim"{tuple_delimiter}中国偏头痛诊治指南2022版{tuple_delimiter}利扎曲普坦{tuple_delimiter}EFFICACY{tuple_delimiter}用于偏头痛急性期治疗的有效率为70-80%{tuple_delimiter}2022{tuple_delimiter}利扎曲普坦用于偏头痛急性期治疗的有效率为70-80%)
+{record_delimiter}
+("claim"{tuple_delimiter}中国偏头痛诊治指南2022版{tuple_delimiter}利扎曲普坦{tuple_delimiter}EVIDENCE{tuple_delimiter}证据等级为A级{tuple_delimiter}2022{tuple_delimiter}该推荐的证据等级为A级)
+{record_delimiter}
+("claim"{tuple_delimiter}中国偏头痛诊治指南2022版{tuple_delimiter}利扎曲普坦{tuple_delimiter}RECOMMENDATION{tuple_delimiter}推荐强度为1级{tuple_delimiter}2022{tuple_delimiter}推荐强度为1级)
+{record_delimiter}
+("claim"{tuple_delimiter}中国偏头痛诊治指南2022版{tuple_delimiter}利扎曲普坦{tuple_delimiter}CONTRAINDICATION{tuple_delimiter}冠心病患者禁用{tuple_delimiter}2022{tuple_delimiter}冠心病患者禁用)
+{completion_delimiter}
+
+######################
+示例2:
+Entity_types: GUIDELINE,DRUG,DISEASE
+Text:
+《中国偏头痛诊治指南2024版》推荐托吡酯用于慢性偏头痛的预防。推荐剂量为25-100mg/日。主要不良反应包括感觉异常、体重减轻。
+######################
+输出:
+("claim"{tuple_delimiter}中国偏头痛诊治指南2024版{tuple_delimiter}托吡酯{tuple_delimiter}RECOMMENDATION{tuple_delimiter}推荐托吡酯用于慢性偏头痛的预防{tuple_delimiter}2024{tuple_delimiter}推荐托吡酯用于慢性偏头痛的预防)
+{record_delimiter}
+("claim"{tuple_delimiter}中国偏头痛诊治指南2024版{tuple_delimiter}托吡酯{tuple_delimiter}DOSAGE{tuple_delimiter}推荐剂量为25-100mg/日{tuple_delimiter}2024{tuple_delimiter}推荐剂量为25-100mg/日)
+{record_delimiter}
+("claim"{tuple_delimiter}中国偏头痛诊治指南2024版{tuple_delimiter}托吡酯{tuple_delimiter}SAFETY{tuple_delimiter}主要不良反应包括感觉异常、体重减轻{tuple_delimiter}2024{tuple_delimiter}主要不良反应包括感觉异常、体重减轻)
+{completion_delimiter}
+
+######################
+-提取规则-
+######################
+
+1. **只提取明确的、可验证的声明**
+   - ❌ 不提取：描述性内容（如"偏头痛是一种常见疾病"）
+   - ✅ 提取：可验证的临床声明（如"利扎曲普坦有效率70%"）
+
+2. **保持原文**
+   - 声明描述应尽量保持原文，不要改写
+   - claim_source_text字段直接引用原文
+
+3. **声明必须完整**
+   - 每个声明应该是一个完整的陈述
+   - 不要提取片段
+
+4. **时间标注**
+   - 从指南名称中提取年份（如"2022版"→2022）
+   - 如果没有明确年份，使用"未知"
+
+5. **主体识别**
+   - 主体通常是指南名称
+   - 如果文本中没有明确指南，使用文档标题
+
+######################
+-真实数据-
+######################
+Entity_types: {entity_types}
+Text: {input_text}
+######################
+输出:

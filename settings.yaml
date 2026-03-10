@@ -1,0 +1,239 @@
+### This config file contains required core defaults that must be set, along with a handful of common optional settings.
+### For a full list of available settings, see https://microsoft.github.io/graphrag/config/yaml/
+
+### LLM settings ###
+## There are a number of settings to tune the threading and token limits for LLM calls - check the docs.
+
+models:
+  default_chat_model:
+    type: chat
+    model_provider: deepseek
+    auth_type: api_key # or azure_managed_identity
+    api_key: ${DEEPSEEK_API_KEY} # set this in the generated .env file, or remove if managed identity
+    model: deepseek-chat
+    api_base: https://api.deepseek.com/v1
+    # api_version: 2024-05-01-preview
+    model_supports_json: false # recommended if this is available for your model.
+    concurrent_requests: 5
+    async_mode: threaded # or asyncio
+    retry_strategy: exponential_backoff
+    max_retries: 10
+    tokens_per_minute: null
+    requests_per_minute: null
+    request_timeout: 600  # 超时时间改为600秒（10分钟），覆盖默认180秒
+    retry_delay: 5        # 重试间隔5秒（默认2秒，适当延长）
+    temperature: 0.0      # 可选：降低温度，减少模型思考时间，越高越容易编，0是完全确定性输出
+    top_p: 0.01         # 关闭采样，只选最确定的内容
+    # max_tokens: 2000   # 足够但不贪多，避免模型为凑长度编造
+    presence_penalty: 1.0  # 惩罚重复，但主要防编造
+    frequency_penalty: 0.1 # 进一步压制模型“脑补”欲望
+
+  default_embedding_model:
+    type: embedding
+    model_provider: openai
+    auth_type: api_key
+    api_key: ${ALI_API_KEY2}
+    model: text-embedding-v4
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    # api_version: 2024-05-01-preview
+    batch_size: 10
+    concurrent_requests: 10
+    async_mode: threaded # or asyncio
+    retry_strategy: exponential_backoff
+    max_retries: 10
+    tokens_per_minute: null
+    requests_per_minute: null
+    request_timeout: 600  # 同步延长嵌入请求超时
+    max_retries: 3
+
+  community_chat_model:
+    type: chat
+    model_provider: openai
+    auth_type: api_key # or azure_managed_identity
+    api_key: ${ALI_API_KEY1} # set this in the generated .env file, or remove if managed identity
+    model: qwen-flash
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    # api_version: 2024-05-01-preview
+    model_supports_json: true # recommended if this is available for your model.
+    concurrent_requests: 25
+    async_mode: threaded # or asyncio
+    retry_strategy: exponential_backoff
+    max_retries: 10
+    tokens_per_minute: null
+    requests_per_minute: null
+
+### Input settings ###
+
+input:
+  storage:
+    type: file # or blob
+    base_dir: "input"
+  file_type: pdf # [csv, text, json]
+  file_encoding: utf-8
+  file_pattern: pdf
+
+# ========== MinerU API 核心配置 ==========
+  mineru_api_token: "${MINERU_API_TOKEN}"  # MinerU API Token（环境变量注入）
+  mineru_model_version: "vlm"  # MinerU 模型版本
+  mineru_output_dir: "./mineru_api_outputs"  # MinerU 解析结果保存目录
+  mineru_max_retries: 10  # API 重试次数
+  mineru_retry_interval: 5  # 重试间隔（秒）
+
+  output_dir: "./mineru_api_outputs"
+  table_description_api_key: ${DEEPSEEK_API_KEY}
+  table_description_model: "deepseek-chat"
+  base_url: "https://api.deepseek.com/v1"
+
+
+chunks:
+  strategy: markdown
+  size: 1200
+  overlap: 100
+  group_by_columns: [id]
+
+### Output/storage settings ###
+## If blob storage is specified in the following four sections,
+## connection_string and container_name must be provided
+
+output:
+  type: file # [file, blob, cosmosdb]
+  base_dir: "output"
+  subdir_format: "%Y%m%d"
+    
+cache:
+  type: file # [file, blob, cosmosdb]
+  base_dir: "cache"
+
+reporting:
+  type: file # [file, blob]
+  base_dir: "logs"
+
+vector_store:
+  default_vector_store:
+    type: lancedb
+    db_uri: output/lancedb
+    container_name: default
+
+### Workflow settings ###
+
+embed_text:
+  model_id: default_embedding_model
+  vector_store_id: default_vector_store
+  batch_size: 10
+  batch_max_tokens: 8192 
+  request_timeout: 600  # 同步延长嵌入请求超时
+  max_retries: 3
+
+extract_graph:
+  model_id: default_chat_model
+  # prompt: "prompts/extract_graph.txt"
+  # entity_types: [organization,person,geo,event]
+  # max_gleanings: 1
+  prompt: "prompts/promptsmigraine1/extract_graph_v3.txt"
+  entity_types: [
+    DISEASE,
+    COMORBIDITY_SCENARIO,
+    THERAPY,
+    DRUG,
+    DRUG_CLASS,
+    NON_DRUG_TREATMENT,
+    TREATMENT_PHASE,
+    POPULATION,
+    GUIDELINE,
+    GUIDELINE_EDITION,
+    GUIDELINE_RECOMMENDATION,
+    EVIDENCE_LEVEL,
+    RECOMMENDATION_GRADE
+    ]
+  max_gleanings: 1
+  temperature: 0.0
+  top_p: 0.01  # 这里也容易漏！
+  presence_penalty: 1.0
+  frequency_penalty: 0.1
+
+summarize_descriptions:
+  model_id: default_chat_model
+  # prompt: "prompts/summarize_descriptions.txt"
+  prompt: "prompts/promptsmigraine1/summarize_descriptions_zh.txt"
+  max_length: 500
+  temperature: 0.0
+  top_p: 0.01  # 这里也容易漏！
+  presence_penalty: 1.0
+  frequency_penalty: 0.1
+
+extract_graph_nlp:
+  text_analyzer:
+    extractor_type: regex_english # [regex_english, syntactic_parser, cfg]
+  async_mode: threaded # or asyncio
+
+cluster_graph:
+  max_cluster_size: 10
+
+extract_claims:
+  enabled: false
+  model_id: default_chat_model
+  # prompt: "prompts/extract_claims.txt"
+  # description: "Any claims or facts that could be relevant to information discovery."
+  prompt: "prompts/promptsmigraine1/extract_claims_zh.txt"
+  description: "偏头痛治疗相关的临床证据和推荐"
+  max_gleanings: 1
+  temperature: 0.0
+  top_p: 0.01  # 这里也容易漏！
+  presence_penalty: 1.0
+  frequency_penalty: 0.1
+
+community_reports:
+  model_id: community_chat_model
+  # graph_prompt: "prompts/community_report_graph.txt"
+  # text_prompt: "prompts/community_report_text.txt"
+  graph_prompt: "prompts/promptsmigraine1/community_report_zh.txt"
+  text_prompt: "prompts/promptsmigraine1/community_report_zh.txt"
+  max_length: 2000
+  max_input_length: 8000
+  temperature: 0.0
+  top_p: 0.01  # 这里也容易漏！
+  presence_penalty: 1.0
+  frequency_penalty: 0.1
+
+embed_graph:
+  enabled: false # if true, will generate node2vec embeddings for nodes
+
+umap:
+  enabled: false # if true, will generate UMAP embeddings for nodes (embed_graph must also be enabled)
+
+snapshots:
+  graphml: false
+  embeddings: false
+
+### Query settings ###
+## The prompt locations are required here, but each search method has a number of optional knobs that can be tuned.
+## See the config docs: https://microsoft.github.io/graphrag/config/yaml/#query
+
+local_search:
+  chat_model_id: default_chat_model
+  embedding_model_id: default_embedding_model
+  # prompt: "prompts/local_search_system_prompt.txt"
+  prompt: "prompts/promptsmigraine1/local_search_zh.txt"
+
+global_search:
+  chat_model_id: default_chat_model
+  # map_prompt: "prompts/global_search_map_system_prompt.txt"
+  # reduce_prompt: "prompts/global_search_reduce_system_prompt.txt"
+  # knowledge_prompt: "prompts/global_search_knowledge_system_prompt.txt"
+  map_prompt: "prompts/promptsmigraine1/global_search_map_zh.txt"
+  reduce_prompt: "prompts/promptsmigraine1/global_search_reduce_zh.txt"
+  knowledge_prompt: "/prompts/promptsmigraine1/global_search_knowledge_zh.txt"
+
+drift_search:
+  chat_model_id: default_chat_model
+  embedding_model_id: default_embedding_model
+  # prompt: "prompts/drift_search_system_prompt.txt"
+  # reduce_prompt: "prompts/drift_search_reduce_prompt.txt"
+  prompt: "prompts/promptsmigraine1/drift_search_zh.txt"
+  reduce_prompt: "prompts/promptsmigraine1/drift_search_reduce.txt"
+
+basic_search:
+  chat_model_id: default_chat_model
+  embedding_model_id: default_embedding_model
+  # prompt: "prompts/basic_search_system_prompt.txt"
+  prompt: "prompts/promptsmigraine1/basic_search_zh.txt"
