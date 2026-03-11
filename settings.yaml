@@ -147,7 +147,7 @@ extract_graph:
     ]
   max_gleanings: 1
   temperature: 0.0
-  top_p: 0.01  # 这里也容易漏！
+  top_p: 0.01  
   presence_penalty: 1.0
   frequency_penalty: 0.1
 
@@ -157,7 +157,7 @@ summarize_descriptions:
   prompt: "prompts/promptsmigraine1/summarize_descriptions_zh.txt"
   max_length: 500
   temperature: 0.0
-  top_p: 0.01  # 这里也容易漏！
+  top_p: 0.01  
   presence_penalty: 1.0
   frequency_penalty: 0.1
 
@@ -178,7 +178,7 @@ extract_claims:
   description: "偏头痛治疗相关的临床证据和推荐"
   max_gleanings: 1
   temperature: 0.0
-  top_p: 0.01  # 这里也容易漏！
+  top_p: 0.01  
   presence_penalty: 1.0
   frequency_penalty: 0.1
 
@@ -191,7 +191,7 @@ community_reports:
   max_length: 2000
   max_input_length: 8000
   temperature: 0.0
-  top_p: 0.01  # 这里也容易漏！
+  top_p: 0.01  
   presence_penalty: 1.0
   frequency_penalty: 0.1
 
