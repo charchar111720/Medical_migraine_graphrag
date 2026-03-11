@@ -17,7 +17,7 @@
 
 **1. PDF 原生支持（Native PDF Support）**
 
-GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目通过二次开发，集成 [MinerU](https://github.com/opendatalab/MinerU) 对 PDF 进行解析，可完整保留文档中的表格和图片信息，并配套设计了适配 PDF 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
+GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目通过二次开发，集成 [MinerU](https://github.com/opendatalab/MinerU) 对 pdf 进行解析，可完整保留文档中的表格和图片信息，并配套设计了适配 pdf 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
 
 **2. 全流程手动 Prompt 调优（Manual Prompt Tuning）**
 
@@ -35,7 +35,7 @@ GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`�
 
 ## 使用方式 Usage
 
-1. 将医疗指南 PDF 文件放入 `input/` 目录；
+1. 将 pdf 文件放入 `input/` 目录；
 2. 配置 MinerU API Key；
 3. 按需修改 prompts 中的实体与关系定义（如扩展至其他疾病）；
 4. 常规运行 GraphRAG 索引与查询流程：
