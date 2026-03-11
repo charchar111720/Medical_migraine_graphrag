@@ -36,11 +36,9 @@ GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`�
 ## 使用方式 Usage
 
 1. 将医疗指南 PDF 文件放入 `input/` 目录；
-2. 设置好模型参数，包括 temperature、top_p、presence_penalty、frequency_penalty、batch_size 等；
-3. 申请 MinerU API Key；
-4. 修改文件类型枚举、分块策略枚举，补充工厂函数的 pdf 处理逻辑，扩展策略加载逻辑；
-5. 按需修改 prompts 中的实体与关系定义（如扩展至其他疾病）；
-6. 常规运行 GraphRAG 索引与查询流程：
+2. 配置 MinerU API Key；
+3. 按需修改 prompts 中的实体与关系定义（如扩展至其他疾病）；
+4. 常规运行 GraphRAG 索引与查询流程：
   ```bash
   # 索引示例（--root 指向根目录，而非 input）
   python -m graphrag index --root ./
@@ -50,7 +48,7 @@ GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`�
   python -m graphrag query --root ./ --method global --query "问题？"
    ```
 
-具体配置参数与运行命令请参考项目文档。
+具体配置参数请参考项目文档。
 
 
 ---
