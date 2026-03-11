@@ -17,11 +17,11 @@
 
 **1. PDF 原生支持（Native PDF Support）**
 
-GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目通过二次开发，集成 [MinerU](https://github.com/opendatalab/MinerU) 对 PDF 进行解析，可完整保留文档中的**表格**和**图片**信息，并配套设计了适配 PDF 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
+GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目通过二次开发，集成 [MinerU](https://github.com/opendatalab/MinerU) 对 PDF 进行解析，可完整保留文档中的表格和图片信息，并配套设计了适配 PDF 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
 
 **2. 全流程手动 Prompt 调优（Manual Prompt Tuning）**
 
-放弃 GraphRAG 的自动 Prompt 生成，全程手动编写了 **12 个 Prompt**，覆盖索引（Indexing）与查询（Query）全流程。所有 Prompt 严格定义了实体类型（Entity Types）与关系类型（Relation Types），明确禁止 LLM 自行创造新类型或编造内容，确保知识图谱的可控性与一致性。
+放弃 GraphRAG 的系统自带的 Prompt 以及自动 Prompt Tuning，全程手动编写了 **12 个 Prompt**，覆盖索引（Indexing）与查询（Query）全流程。严格定义了实体类型（Entity Types）与关系类型（Relation Types），明确禁止 LLM 自行创造新类型或编造内容，确保知识图谱的可控性与一致性。
 
 **3. 医疗专属实体与关系设计（Domain-specific Entity & Relation Schema）**
 
@@ -35,12 +35,23 @@ GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`�
 
 ## 使用方式 Usage
 
-1. 将医疗指南 PDF 文件放入 `input/` 目录
-2. 在配置文件中填写 MinerU API Key 及切分参数
-3. 按需修改 `prompts/` 目录下的实体与关系定义（如扩展至其他疾病）
-4. 运行 GraphRAG 索引与查询流程
+1. 将医疗指南 PDF 文件放入 `input/` 目录；
+2. 设置好模型参数，包括 temperature、top_p、presence_penalty、frequency_penalty、batch_size 等；
+3. 申请 MinerU API Key；
+4. 修改文件类型枚举、分块策略枚举，补充工厂函数的 pdf 处理逻辑，扩展策略加载逻辑；
+5. 按需修改 prompts 中的实体与关系定义（如扩展至其他疾病）；
+6. 常规运行 GraphRAG 索引与查询流程：
+  ```bash
+  # 索引示例（--root 指向根目录，而非 input）
+  python -m graphrag index --root ./
+  
+  # 提问示例
+  python -m graphrag query --root ./ --method local --query "问题？"
+  python -m graphrag query --root ./ --method global --query "问题？"
+   ```
 
 具体配置参数与运行命令请参考项目文档。
+
 
 ---
 
