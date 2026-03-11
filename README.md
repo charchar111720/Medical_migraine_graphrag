@@ -7,7 +7,7 @@
 
 ## 背景 Background
 
-微软开源的 [GraphRAG](https://github.com/microsoft/graphrag) 在通用文档上表现优异，但直接用于医疗指南时存在明显局限：默认实体类型（PERSON、ORGANIZATION 等）与医疗场景严重脱节，LLM 在提取过程中容易自由发挥，生成与诊疗无关的噪声实体，导致知识图谱质量难以满足医疗场景的精准性要求。
+微软开源的 [GraphRAG](https://github.com/microsoft/graphrag)直接用于医疗指南时存在明显局限：默认实体类型（PERSON、ORGANIZATION 等）与医疗场景严重脱节，LLM 在提取过程中容易自由发挥，生成与诊疗无关的噪声实体，导致知识图谱质量难以满足医疗场景的精准性要求。
 
 本项目针对上述问题对 GraphRAG 进行了系统性改造，构建了一套可快速复用、可扩展至其他疾病领域的中文医疗知识图谱方案。
 
