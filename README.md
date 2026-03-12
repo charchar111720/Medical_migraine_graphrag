@@ -15,21 +15,22 @@
 
 ## 核心改进 Key Features
 
-**1. PDF 原生支持（Native PDF Support）**
+**1. 医疗专属实体与关系设计（Domain-specific Entity & Relation Schema）**
 
-GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目通过二次开发，集成 [MinerU](https://github.com/opendatalab/MinerU) 对 pdf 进行解析，可完整保留文档中的表格和图片信息，并配套设计了适配 pdf 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
+针对医疗指南的文档结构，设计了贴合临床场景的实体类型，包括：疾病（Disease）、症状（Symptom）、药物（Drug）、诊断标准（Diagnostic Criteria）、治疗方案（Treatment）、证据等级（Evidence Level）、禁忌症（Contraindication）等。关系类型同样经过专项设计，能够准确捕捉诊疗规则、用药逻辑与循证依据之间的关联。
 
 **2. 全流程手动 Prompt 调优（Manual Prompt Tuning）**
 
 放弃 GraphRAG 的系统自带的 Prompt 以及自动 Prompt Tuning，全程手动编写了 **12 个 Prompt**，覆盖索引（Indexing）与查询（Query）全流程。严格定义了实体类型（Entity Types）与关系类型（Relation Types），明确禁止 LLM 自行创造新类型或编造内容，确保知识图谱的可控性与一致性。
 
-**3. 医疗专属实体与关系设计（Domain-specific Entity & Relation Schema）**
-
-针对医疗指南的文档结构，设计了贴合临床场景的实体类型，包括：疾病（Disease）、症状（Symptom）、药物（Drug）、诊断标准（Diagnostic Criteria）、治疗方案（Treatment）、证据等级（Evidence Level）、禁忌症（Contraindication）等。关系类型同样经过专项设计，能够准确捕捉诊疗规则、用药逻辑与循证依据之间的关联。
-
-**4. 易扩展的疾病领域适配（Easy Domain Extension）**
+**3. 易扩展的疾病领域适配（Easy Domain Extension）**
 
 当前实体与关系体系以**偏头痛（Migraine）**为示例场景，但整体框架具备良好的可迁移性。如需扩展至其他疾病领域（如糖尿病、高血压、癫痫等），仅需调整 Prompt 中的具体术语与实体定义，无需修改底层代码，即可快速构建新的专科知识图谱。
+
+**4. PDF 原生支持（Native PDF Support）**
+
+GraphRAG 官方仅支持 `txt`、`csv`、`json` 三种格式，不支持 `pdf`。本项目集成 [MinerU](https://github.com/opendatalab/MinerU) 对 pdf 进行解析，可完整保留文档中的表格和图片信息，并配套设计了适配 pdf 结构的自定义切分策略（Custom Chunking Strategy），彻底解除了原生格式限制。只需在 `input` 目录放入 PDF 文件，并配置好 MinerU API Key 即可。
+
 
 ---
 
